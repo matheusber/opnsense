@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# Script to build kernel. Logs time it starts and finishes.
+
 . env.sh
 
 echo -n "$0 Inicio:   " >> $LOG
