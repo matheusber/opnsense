@@ -12,8 +12,8 @@ SRC_DIR=opnsense-confs
 
 ROOTDIR=/usr
 DATE="+%Y-%m-%d_%H:%M:%S"
-DEVICE=R4S
-#DEVICE=R5S
+#DEVICE=R4S
+DEVICE=R5S_SD
 #DEVICE=RPI
 HOST=`hostname`
 LOG=/root/opnsense-dev/log.$HOST.$TAG
