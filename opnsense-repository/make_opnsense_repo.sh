@@ -1,7 +1,7 @@
 #!/bin/sh
 
 VERSION=24.7
-MINOR=.6
+MINOR=.7
 
 if [ -n "$1" ]; then
  SRC_DIR=$1
@@ -9,7 +9,6 @@ else
  SRC_DIR=/usr/local/opnsense/build/${VERSION}/aarch64
 fi
 
-echo "AA: $SRC_DIR"
 DEST_DIR=/usr/local/opnsense/repo/FreeBSD:14:aarch64
 
 # Create the destination dir
@@ -29,9 +28,13 @@ mkdir -p $DEST_DIR/${VERSION}/MINT/${VERSION}${MINOR}/latest
 
 PKG_FILE=`ls -1 $SRC_DIR/sets/ | grep package | grep -v sig`
 echo $PKG_FILE
+echo tar xvf $SRC_DIR/sets/$PKG_FILE -C $DEST_DIR/${VERSION}/MINT/${VERSION}${MINOR}/latest
 tar xvf $SRC_DIR/sets/$PKG_FILE -C $DEST_DIR/${VERSION}/MINT/${VERSION}${MINOR}/latest
 
+
 # setting the "latest" dir in repository root. Will point to the latest build
+rm $DEST_DIR/${VERSION}/latest
+echo ln -sf $DEST_DIR/${VERSION}/MINT/${VERSION}${MINOR}/latest $DEST_DIR/${VERSION}/latest
 ln -sf $DEST_DIR/${VERSION}/MINT/${VERSION}${MINOR}/latest $DEST_DIR/${VERSION}/latest
 
 # setting the "latest" dir using ln
