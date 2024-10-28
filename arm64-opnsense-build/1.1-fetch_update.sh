@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Script to clone opnsense git and fire up the tools update.
 # Builds the pkg version featured on opnsense ports repo
 # Copies R5S device conf files and custom config files

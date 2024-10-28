@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Checks if there is repo.key, if not it generates one and creates a fingerprint for the package and update repository that may be generated later on
 
 . env.sh
