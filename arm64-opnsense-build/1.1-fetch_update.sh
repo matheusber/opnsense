@@ -31,7 +31,7 @@ echo "Copy R5S conf files"
 cp $SRC_DIR/R5S.conf $SRC_DIR/R5S_SD.conf /usr/tools/device
 
 echo "Copy custom .conf files"
-cp $SRC_DIR/extras.conf $SRC_DIR/plugins.conf $SRC_DIR/ports.conf /usr/tools/config/24.7/
+cp $SRC_DIR/extras.conf $SRC_DIR/plugins.conf $SRC_DIR/ports.conf /usr/tools/config/$VERSION/
 
 # Copy R5S boot files
 echo "Copy R5S u-boot files"
