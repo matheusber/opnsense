@@ -9,7 +9,7 @@
 # clone the opnsense/tools
 git clone --depth=1 https://github.com/opnsense/tools.git /usr/tools
 
-rm -rf /usr/tools/config/24.1
+rm -rf /usr/tools/config/25.1
 
 # fetch all source codes
 make -C /usr/tools update
@@ -20,6 +20,7 @@ CURRENT_DIR=`pwd`
 # make and install the old version of pkg used by opnsense
 cd /usr/ports/ports-mgmt/pkg/
 make -j4
+pkg unlock -y pkg
 make deinstall
 make reinstall
 pkg lock pkg
@@ -28,10 +29,10 @@ pkg lock pkg
 cd $CURRENT_DIR
 
 echo "Copy R5S conf files"
-cp $SRC_DIR/R5S.conf $SRC_DIR/R5S_SD.conf /usr/tools/device
+cp $SRC_DIR/R5S.conf $SRC_DIR/R5S_SD.conf $SRC_DIR/R5S_MBR.conf /usr/tools/device
 
-echo "Copy custom .conf files"
-cp $SRC_DIR/extras.conf $SRC_DIR/plugins.conf $SRC_DIR/ports.conf /usr/tools/config/$VERSION/
+#echo "Copy custom .conf files"
+#cp $SRC_DIR/extras.conf $SRC_DIR/plugins.conf $SRC_DIR/ports.conf /usr/tools/config/$VERSION/
 
 # Copy R5S boot files
 echo "Copy R5S u-boot files"
