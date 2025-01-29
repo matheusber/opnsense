@@ -4,10 +4,8 @@
 
 . env.sh
 
-echo -n "$0 Version: $TAG_PORTS Inicio:    " >> $LOG
-date  $DATE >> $LOG
+log_print $TAG_SRC $LOG $DATE Inicio
 
 make -C /usr/tools/ VERSION=$TAG_PORTS DEVICE=$DEVICE ports
 
-echo -n "$0 Version: $TAG_PORTS Final:     " >> $LOG
-date  $DATE >> $LOG
+log_print $TAG_SRC $LOG $DATE Final

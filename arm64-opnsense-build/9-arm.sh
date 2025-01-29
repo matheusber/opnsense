@@ -1,15 +1,15 @@
 #!/bin/sh
 
+# Script to build imag for a device. Logs time it starts and finishes.
+
 . env.sh
 
 if [ ! -z $1 ]; then
  DEVICE=$1
 fi
 
-echo -n "$0 Version: $TAG_SRC DEVICE: $DEVICE Inicio:     " >> $LOG
-date  $DATE >> $LOG
+log_print $TAG_SRC $LOG $DATE Inicio
 
-make -C /usr/tools/ VERSION=$TAG_SRC DEVICE=$DEVICE arm-8G
+make -C /usr/tools/ VERSION=$TAG_SRC DEVICE=$DEVICE arm-$IMAGE_SIZE
 
-echo -n "$0 Version: $TAG_SRC DEVICE: $DEVICE Final:      " >> $LOG
-date  $DATE >> $LOG
+log_print $TAG_SRC $LOG $DATE Final

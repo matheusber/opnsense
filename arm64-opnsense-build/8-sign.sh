@@ -1,11 +1,11 @@
 #!/bin/sh
 
+# Script to sign tar files if it has not yet been done. Logs time it starts and finishes.
+
 . env.sh
 
-echo -n "$0 Version: $TAG_SRC Inicio:     " >> $LOG
-date  $DATE >> $LOG
+log_print $TAG_SRC $LOG $DATE Inicio
 
 make -C /usr/tools/ VERSION=$TAG_CORE DEVICE=$DEVICE sign-base,kernel,packages
 
-echo -n "$0 Version: $TAG_SRC Final:      " >> $LOG
-date  $DATE >> $LOG
+log_print $TAG_SRC $LOG $DATE Final

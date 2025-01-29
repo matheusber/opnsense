@@ -6,6 +6,9 @@
 
 . env.sh
 
+# Create LOGDIR
+mkdir -p $LOGDIR
+
 # clone the opnsense/tools
 git clone --depth=1 https://github.com/opnsense/tools.git /usr/tools
 
@@ -21,7 +24,7 @@ CURRENT_DIR=`pwd`
 cd /usr/ports/ports-mgmt/pkg/
 make -j4
 pkg unlock -y pkg
-make deinstall
+#make deinstall
 make reinstall
 pkg lock pkg
 
