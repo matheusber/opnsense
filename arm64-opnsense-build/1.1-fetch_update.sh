@@ -34,6 +34,9 @@ cd $CURRENT_DIR
 echo "Copy R5S conf files"
 cp $SRC_DIR/R5S_USB.conf $SRC_DIR/R5S_UBOOT.conf $SRC_DIR/R5S_EDK2.conf /usr/tools/device
 
+echo "Copy custom rc file"
+cp $SRC_DIR/usr-core-src-etc-rc /usr/core/src/etc/rc
+
 #echo "Copy custom .conf files"
 #cp $SRC_DIR/extras.conf $SRC_DIR/plugins.conf $SRC_DIR/ports.conf /usr/tools/config/$VERSION/
 
@@ -45,3 +48,6 @@ cp -Rv edk2-nanopi-r5s /usr/local/share/edk2/
 # install needed packages
 echo pkg install u-boot-nanopi-r4s u-boot-nanopi-r5s
 pkg install u-boot-nanopi-r4s u-boot-nanopi-r5s
+
+echo "==> About custom files"
+echo " As every new version there can be new lines on the files, it is not copied by default anymore. As a hint, compare files to the ones from this repository and adjust as needed."
