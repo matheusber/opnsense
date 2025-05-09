@@ -1,0 +1,267 @@
+#!/bin/sh
+
+# Copyright (c) 2014-2022 Franco Fichtner <franco@opnsense.org>
+# Copyright (c) 2004-2010 Scott Ullrich <sullrich@gmail.com>
+# Copyright (c) 2003-2004 Manuel Kasper <mk@neon1.net>
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
+
+stty status '^T' 2> /dev/null
+
+# Set shell to ignore SIGINT (2), but not children;
+# shell catches SIGQUIT (3) and returns to single user.
+#
+trap : 2
+trap "echo 'Boot interrupted'; exit 1" 3
+
+HOME=/
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin:/usr/local/sbin
+REQUESTS_CA_BUNDLE=/usr/local/etc/ssl/cert.pem
+ZPOOL_IMPORT_PATH=/dev
+export HOME PATH REQUESTS_CA_BUNDLE ZPOOL_IMPORT_PATH
+
+echo "Mounting filesystems..."
+
+grow_partition()
+{
+	local DEV=$(echo "${1}" | awk 'match($0, /^[a-z]+[0-9]+/) { print substr( $0, RSTART, RLENGTH )}')
+	# Find out if its a MBR scheme, as the ones on ARM64 boards
+	local SCHEME=$(gpart list $DEV | grep scheme | awk '{print $2}')
+
+	if [ "${SCHEME}" = "MBR" ]; then
+                # MBR, the device slice will not end in pX, but sX, as in "ada0s2a"
+                local SLICE=${1##"${DEV}s"}
+		# Need to get only the index of the partition, the letter for BSD label should go
+                local IDX=$(echo "${SLICE}" | cut -c1)
+        else
+                # No MBR, as was treated befoe
+                local IDX=${1##"${DEV}p"}
+        fi
+
+
+	if [ "${IDX}" = "${1}" ]; then
+		# assume schema ada0a used by nano images
+		IDX=1
+	fi
+
+	if [ -n "${DEV}" -a "${DEV}" != "${1}" -a \
+	    -n "${IDX}" -a "${IDX}" != "${1}" ]; then
+		gpart recover ${DEV}
+		gpart resize -i ${IDX} ${DEV}
+	fi
+}
+
+# tunefs may refuse otherwise
+mount -fr / 2> /dev/null
+
+GROWFS_MARKER=/.probe.for.growfs
+ROOT_IS_UFS=
+ROOT_IS_ZFS=$(
+	df -hT | while read FS TYPE SIZE USED AVAIL CAP MOUNT MORE; do
+		if [ "${TYPE}" = "zfs" -a "${MOUNT}" = "/" ]; then
+			echo ${FS%%/*}
+			return
+		fi
+	done
+)
+
+while read FS_PART FS_MNT FS_TYPE FS_MORE; do
+	# only tune our own file systems
+	if [ "${FS_TYPE}" != "ufs" ]; then
+		continue;
+	fi
+
+	# normalize devices names
+	FS_LABEL=$(echo ${FS_PART} | awk 'match($0, /^\/dev\/(gpt|ufs)\/.+$/) { print substr( $0, RSTART + 5, RLENGTH - 5 )}')
+	if [ -n "${FS_LABEL}" ]; then
+		FS_PART=$(glabel status -as | awk '$1 == "'${FS_LABEL}'" { print $3 }')
+	else
+		FS_PART=${FS_PART##/dev/}
+	fi
+
+	FS_DEV=$(echo ${FS_PART} | awk 'match($0, /^[a-z]+[0-9]+/) { print substr( $0, RSTART, RLENGTH )}')
+
+	if echo "${FS_MORE}" | grep -iq nosoft; then
+		# appending "# nosoft" to the /etc/fstab entry
+		# will allow to strip trim and leave it disabled
+		tunefs -n disable ${FS_MNT}
+	else
+		# enables soft updates
+		tunefs -n enable ${FS_MNT}
+	fi
+
+	# trim fun if possible
+	if [ -n "${FS_DEV}" ]; then
+		FS_TRIM=$(camcontrol identify ${FS_DEV} | grep TRIM | awk '{ print $5; }')
+		if [ "${FS_TRIM}" = "yes" ]; then
+			if echo "${FS_MORE}" | grep -iq notrim; then
+				# appending "# notrim" to the /etc/fstab entry
+				# will allow to strip trim and leave it disabled
+				tunefs -t disable ${FS_MNT}
+			else
+				# enables TRIM
+				tunefs -t enable ${FS_MNT}
+			fi
+		fi
+	fi
+
+	# marker for running fsck or growfs in a bit
+	if [ "${FS_MNT}" = "/" ]; then
+		ROOT_IS_UFS=${FS_PART}
+	fi
+
+done < /etc/fstab
+
+if [ -f ${GROWFS_MARKER} ]; then
+	# hammertime!
+	if [ -n "${ROOT_IS_UFS}" ]; then
+		grow_partition ${ROOT_IS_UFS}
+
+		# Find out if its a MBR scheme, as the ones on ARM64 boards
+		DEV=$(echo "${ROOT_IS_UFS}" | awk 'match($0, /^[a-z]+[0-9]+/) { print substr( $0, RSTART, RLENGTH )}')
+		SCHEME=$(gpart list $DEV | grep scheme | awk '{print $2}')
+
+		if [ "${SCHEME}" = "MBR" ]; then
+            		# Need to run gpart commit to keep going the resizing
+			gpart commit $FS_LABEL
+		fi
+
+		growfs -y "/"
+	elif [ -n "${ROOT_IS_ZFS}" ]; then
+		zpool list -Hv ${ROOT_IS_ZFS} | while read NAME MORE; do
+			if [ "${NAME}" != "${ROOT_IS_ZFS}" ]; then
+				grow_partition ${NAME}
+				zpool online -e ${ROOT_IS_ZFS} ${NAME}
+			fi
+		done
+	fi
+fi
+
+attempts=0
+while [ ${attempts} -lt 3 ]; do
+	if [ -n "${ROOT_IS_UFS}" ]; then
+		# fsck_ffs is required to be run twice
+		# in order to mark the system "clean"
+		fsck -C -y / || fsck -C -y /
+	fi
+	if mount -a; then
+		# bail if all is well
+		break
+	fi
+	attempts=$((attempts+1))
+done
+
+if kldstat -qm zfs; then
+	mount -uw /
+	zpool import -Na
+	zfs mount -va
+	# maybe there is a mountpoint in fstab
+	# that requires ZFS to be fully set up
+	mount -a
+fi
+
+# clear growfs marker now that we are read/write
+rm -f ${GROWFS_MARKER}
+
+# see if / is writable (aka. not a live media boot)
+if _tmpdir=$(mktemp -d -q /.diskless.XXXXXX); then
+	# only remove the directory
+	rmdir ${_tmpdir}
+else
+	# fake a writeable environment in some subdirs
+	for i in boot conf etc home root usr var; do
+		mkdir -p /tmp/.cdrom/${i}
+		mount_unionfs /tmp/.cdrom/${i} /${i}
+	done
+fi
+
+# regenerate groups and users for base
+/usr/local/etc/rc.subr.d/recover base > /dev/null
+
+# generate hostid and save it permanently
+/etc/rc.d/hostid start
+/etc/rc.d/hostid_save start
+
+# set keyboard map if needed
+/etc/rc.d/syscons onestart
+
+# Execute the import syshook / plugin commands
+/usr/local/etc/rc.syshook import
+
+# all sorts of maintenance tasks for /var
+/usr/local/etc/rc.subr.d/var
+
+# write /var/run/dmesg.boot
+/etc/rc.d/dmesg onestart
+
+# all sorts of maintenance tasks for /tmp
+/usr/local/etc/rc.subr.d/tmp
+
+# set up and recover a crash dump before activating swap
+/usr/local/etc/rc.subr.d/crashdump
+/usr/local/etc/rc.subr.d/swapon
+
+echo -n "."
+/sbin/ldconfig -elf /usr/lib /usr/local/lib /lib
+/etc/rc.d/ldconfig start 2> /dev/null
+
+# Launching kbdmux(4)
+if [ -f "/dev/kbdmux0" ]; then
+	echo -n "."
+	/usr/sbin/kbdcontrol -k /dev/kbdmux0 < /dev/console
+	[ -c "/dev/atkbd0" ] && kbdcontrol -a atkbd0 < /dev/console
+	[ -c "/dev/ukbd0" ] && kbdcontrol -a ukbd0 < /dev/console
+fi
+
+echo "done."
+
+# Regenerate groups and users for packages
+/usr/local/etc/rc.subr.d/recover pkg > /dev/null 2> /dev/null
+
+# Recreate capabilities DB
+/usr/bin/cap_mkdb /etc/login.conf
+
+# Execute the early syshook / plugin commands
+/usr/local/etc/rc.syshook early
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# !!! PHP starts working here, not earlier !!!
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+# Let the PHP-based configuration subsystem set up the system now
+echo -n "Launching the init system..."
+/usr/local/bin/flock -n -o /var/run/booting /usr/local/etc/rc.bootup || exit 1
+
+# Execute the normal syshook / plugin commands
+/usr/local/etc/rc.syshook start
+
+echo -n "Root file system: "
+mount | awk '$3 == "/" { print $1 }'
+date
+
+/usr/local/sbin/opnsense-shell banner
+/usr/local/etc/rc.subr.d/livemode
+
+exit 0
