@@ -49,5 +49,5 @@ cp -Rv edk2-nanopi-r5s /usr/local/share/edk2/
 echo pkg install u-boot-nanopi-r4s u-boot-nanopi-r5s
 pkg install u-boot-nanopi-r4s u-boot-nanopi-r5s
 
-echo "==> About custom files"
-echo " As every new version there can be new lines on the files, it is not copied by default anymore. As a hint, compare files to the ones from this repository and adjust as needed."
+echo "==> About custom .conf build files"
+echo " As in every new version there can be new lines on the files, they are not copied by default anymore. As a hint, compare files to the ones from this repository and adjust as needed."
