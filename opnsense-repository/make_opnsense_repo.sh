@@ -1,7 +1,7 @@
 #!/bin/sh
 
 VERSION=25.1
-MINOR=.9
+MINOR=.10
 
 if [ -n "$1" ]; then
  SRC_DIR=$1
