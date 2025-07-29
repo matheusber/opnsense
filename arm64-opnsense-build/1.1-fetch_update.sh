@@ -12,7 +12,7 @@ mkdir -p $LOGDIR
 # clone the opnsense/tools
 git clone --depth=1 https://github.com/opnsense/tools.git /usr/tools
 
-rm -rf /usr/tools/config/24.7
+rm -rf /usr/tools/config/25.1
 
 # fetch all source codes
 make -C /usr/tools update
@@ -24,7 +24,7 @@ CURRENT_DIR=`pwd`
 cd /usr/ports/ports-mgmt/pkg/
 make -j4
 pkg unlock -y pkg
-#make deinstall
+make deinstall
 make reinstall
 pkg lock pkg
 
