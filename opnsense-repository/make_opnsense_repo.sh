@@ -1,7 +1,7 @@
 #!/bin/sh
 
 VERSION=26.7
-MINOR=.1
+MINOR=.2
 
 if [ -n "$1" ]; then
  SRC_DIR=$1
@@ -9,7 +9,7 @@ else
  SRC_DIR=/usr/local/opnsense/build/${VERSION}/aarch64
 fi
 
-DEST_DIR=/usr/local/opnsense/repo/FreeBSD:14:aarch64
+DEST_DIR=/usr/local/opnsense/repo/FreeBSD:15:aarch64
 
 # Create the destination dir
 mkdir -p $DEST_DIR/${VERSION}
