@@ -24,15 +24,15 @@ CURRENT_DIR=`pwd`
 cd /usr/ports/ports-mgmt/pkg/
 make -j4
 pkg unlock -y pkg
-make deinstall
+#make deinstall
 make reinstall
-pkg lock pkg
+pkg lock -y pkg
 
 # Back to initial dir
 cd $CURRENT_DIR
 
-echo "Copy R5S conf files"
-cp $SRC_DIR/R5S_USB.conf $SRC_DIR/R5S_UBOOT.conf $SRC_DIR/R5S_EDK2.conf /usr/tools/device
+echo "Copy R5S and Orange Pi 5 Plus conf files"
+cp $SRC_DIR/R5S_USB.conf $SRC_DIR/R5S_UBOOT.conf $SRC_DIR/R5S_EDK2.conf $SRC_DIR/OP5P_MBR.conf /usr/tools/device
 
 echo "Copy custom rc file"
 cp $SRC_DIR/usr-core-src-etc-rc /usr/core/src/etc/rc
