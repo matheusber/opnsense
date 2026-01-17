@@ -46,31 +46,30 @@ echo "Mounting filesystems..."
 
 grow_partition()
 {
-	local DEV=$(echo "${1}" | awk 'match($0, /^[a-z]+[0-9]+/) { print substr( $0, RSTART, RLENGTH )}')
-	# Find out if its a MBR scheme, as the ones on ARM64 boards
-	local SCHEME=$(gpart list $DEV | grep scheme | awk '{print $2}')
+    local DEV=$(echo "${1}" | awk 'match($0, /^[a-z]+[0-9]+/) { print substr( $0, RSTART, RLENGTH )}')
+    # Find out if its a MBR scheme, as the ones on ARM64 boards
+    local SCHEME=$(gpart list $DEV | grep scheme | awk '{print $2}')
 
-	if [ "${SCHEME}" = "MBR" ]; then
-                # MBR, the device slice will not end in pX, but sX, as in "ada0s2a"
-                local SLICE=${1##"${DEV}s"}
-		# Need to get only the index of the partition, the letter for BSD label should go
-                local IDX=$(echo "${SLICE}" | cut -c1)
-        else
-                # No MBR, as was treated befoe
-                local IDX=${1##"${DEV}p"}
-        fi
+    if [ "${SCHEME}" = "MBR" ]; then
+	# MBR, the device slice will not end in pX, but sX, as in "ada0s2a"
+	local SLICE=${1##"${DEV}s"}
+	# Need to get only the index of the partition, the letter for BSD label should go
+	local IDX=$(echo "${SLICE}" | cut -c1)
+    else
+	# No MBR, as was treated befoe
+	local IDX=${1##"${DEV}p"}
+    fi
 
+    if [ "${IDX}" = "${1}" ]; then
+	# assume schema ada0a used by nano images
+	IDX=1
+    fi
 
-	if [ "${IDX}" = "${1}" ]; then
-		# assume schema ada0a used by nano images
-		IDX=1
-	fi
-
-	if [ -n "${DEV}" -a "${DEV}" != "${1}" -a \
-	    -n "${IDX}" -a "${IDX}" != "${1}" ]; then
-		gpart recover ${DEV}
-		gpart resize -i ${IDX} ${DEV}
-	fi
+    if [ -n "${DEV}" -a "${DEV}" != "${1}" -a \
+	-n "${IDX}" -a "${IDX}" != "${1}" ]; then
+	    gpart recover ${DEV}
+	    gpart resize -i ${IDX} ${DEV}
+    fi
 }
 
 # tunefs may refuse otherwise
@@ -140,13 +139,13 @@ if [ -f ${GROWFS_MARKER} ]; then
 		grow_partition ${ROOT_IS_UFS}
 
 		# Find out if its a MBR scheme, as the ones on ARM64 boards
-		DEV=$(echo "${ROOT_IS_UFS}" | awk 'match($0, /^[a-z]+[0-9]+/) { print substr( $0, RSTART, RLENGTH )}')
-		SCHEME=$(gpart list $DEV | grep scheme | awk '{print $2}')
+                DEV=$(echo "${ROOT_IS_UFS}" | awk 'match($0, /^[a-z]+[0-9]+/) { print substr( $0, RSTART, RLENGTH )}')
+                SCHEME=$(gpart list $DEV | grep scheme | awk '{print $2}')
 
-		if [ "${SCHEME}" = "MBR" ]; then
-            		# Need to run gpart commit to keep going the resizing
-			gpart commit $FS_LABEL
-		fi
+                if [ "${SCHEME}" = "MBR" ]; then
+                        # Need to run gpart commit to keep going the resizing
+                        gpart commit $FS_LABEL
+                fi
 
 		growfs -y "/"
 	elif [ -n "${ROOT_IS_ZFS}" ]; then
@@ -191,9 +190,9 @@ if _tmpdir=$(mktemp -d -q /.diskless.XXXXXX); then
 	rmdir ${_tmpdir}
 else
 	# fake a writeable environment in some subdirs
-	for i in boot conf etc home root usr var; do
-		mkdir -p /tmp/.cdrom/${i}
-		mount_unionfs /tmp/.cdrom/${i} /${i}
+	for i in boot conf etc home usr var; do
+		mkdir -p /tmp/.media/${i}
+		mount_unionfs /tmp/.media/${i} /${i}
 	done
 fi
 
@@ -243,6 +242,13 @@ echo "done."
 # Recreate capabilities DB
 /usr/bin/cap_mkdb /etc/login.conf
 
+BOOTLOCK="/var/run/booting"
+
+touch ${BOOTLOCK}
+chmod 660 ${BOOTLOCK}
+
+/usr/local/etc/rc.subr.d/php
+
 # Execute the early syshook / plugin commands
 /usr/local/etc/rc.syshook early
 
@@ -252,7 +258,7 @@ echo "done."
 
 # Let the PHP-based configuration subsystem set up the system now
 echo -n "Launching the init system..."
-/usr/local/bin/flock -n -o /var/run/booting /usr/local/etc/rc.bootup || exit 1
+/usr/local/bin/flock -n -o ${BOOTLOCK} /usr/local/etc/rc.bootup || exit 1
 
 # Execute the normal syshook / plugin commands
 /usr/local/etc/rc.syshook start
