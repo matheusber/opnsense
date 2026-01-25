@@ -13,6 +13,7 @@ In the case for R5S, both EDK2 and U-BOOT firmware are supported. As the latter 
 - First boot on devices that use the 1.98 Realtek driver (for now, R5S and OP5P) needs to have all network cables disconnected. Might be a bug on the driver, I don't know how to explain this yet :(
 ## TO-DO
 - Wait for sdcard support for rk3588
+- Wait for opnsense use FreeBSD 15.X. Both Realtek 2.5Gbps will work, and NMVe also (tested on 15.0R, vanilla FreeBSD)
 ## News
 - 2025-12-07: Due to storage problems and the Holiday Season, I won't be able to build 25.7.9 Images. In about two weeks I will have new hardware to rebuild the ARM64 box.
   
