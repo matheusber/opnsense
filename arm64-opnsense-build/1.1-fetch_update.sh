@@ -12,7 +12,7 @@ mkdir -p $LOGDIR
 # clone the opnsense/tools
 git clone --depth=1 https://github.com/opnsense/tools.git /usr/tools
 
-rm -rf /usr/tools/config/25.1
+rm -rf /usr/tools/config/25.7
 
 # fetch all source codes
 make -C /usr/tools update
