@@ -10,7 +10,7 @@ pwd
 
 # sed time
 echo "==> plugins.conf"
-sed -i -e 's/realtek-re-kmod/realtek-re-kmod198/g' /usr/tools/config/$VERSION/plugins.conf
+sed -i -e 's/realtek-re/realtek-re198/g' /usr/tools/config/$VERSION/plugins.conf
 
 echo "==> ports.conf"
 sed -i -e 's/realtek-re-kmod/realtek-re-kmod198/g' /usr/tools/config/$VERSION/ports.conf
@@ -18,5 +18,7 @@ sed -i -e 's/realtek-re-kmod/realtek-re-kmod198/g' /usr/tools/config/$VERSION/po
 # Copy extras.conf file
 echo "cp $SRC_DIR/extras.conf /usr/tools/config/$VERSION/"
 cp $SRC_DIR/extras.conf /usr/tools/config/$VERSION/
+
+cp /usr/tools/config/$VERSION/plugins.conf  /usr/tools/config/$VERSION/ports.conf $SRC_DIR/
 
 exit 0
