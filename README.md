@@ -16,4 +16,4 @@ In the case for R5S, both EDK2 and U-BOOT firmware are supported. As the latter 
 - Wait for opnsense use FreeBSD 15.X. Both Realtek 2.5Gbps will work, and NMVe also (tested on 15.0R, vanilla FreeBSD)
 ## News
 - 2025-12-07: Due to storage problems and the Holiday Season, I won't be able to build 25.7.9 Images. In about two weeks I will have new hardware to rebuild the ARM64 box.
-  
+- 2026-05-21: 26.1.8 release used 26.1.7 packages and aux tar files. If needed, refer to 26.1.7 tar page. Package caddy-customs won't build as a result of its Github repository update.
