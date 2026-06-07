@@ -1,10 +1,10 @@
 #!/bin/sh
 
 TAG=ARM64
-TAG_SRC="26.1.8"
-TAG_CORE="26.1.8-local"
-TAG_PLUGINS="26.1.8"
-TAG_PORTS="26.1.8"
+TAG_SRC="26.1.9"
+TAG_CORE="26.1.9-local"
+TAG_PLUGINS="26.1.9"
+TAG_PORTS="26.1.9"
 VERSION="26.1"
 
 SRC_DIR=opnsense-confs
