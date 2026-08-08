@@ -6,7 +6,7 @@
 
 cd /usr/core
 
-git checkout -b ${TAG_SRC}-local ${TAG_SRC}
+git checkout -b ${TAG_PORTS}-local ${TAG_PORTS}
 # rc script already copied
 git add -f src/etc/pkg/fingerprints/OPNsense/trusted/apartnet
 git commit -a -m "Updating code: adding custom rc and fingerprint"
