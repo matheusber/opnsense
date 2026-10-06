@@ -13,9 +13,11 @@ In the case for R5S, both EDK2 and U-BOOT firmware are supported. As the latter 
 - First boot on devices that use the 1.98 Realtek driver (for now, R5S and OP5P) needs to have all network cables disconnected. Might be a bug on the driver, I don't know how to explain this yet :(
 ## TO-DO
 - Wait for sdcard support for rk3588
-- Wait for opnsense use FreeBSD 15.X. Both Realtek 2.5Gbps will work, and NMVe also (tested on 15.0R, vanilla FreeBSD)
+- For Orange Pi 5 Plus: Wait for opnsense use FreeBSD 15.X. Both Realtek 2.5Gbps will work, and NMVe also (tested on 15.0R, vanilla FreeBSD)
 ## News
 - 2025-12-07: Due to storage problems and the Holiday Season, I won't be able to build 25.7.9 Images. In about two weeks I will have new hardware to rebuild the ARM64 box.
 - 2026-05-21: 26.1.8 release used 26.1.7 packages and aux tar files. If needed, refer to 26.1.7 tar page. Package caddy-customs won't build as a result of its Github repository update.
 - 2026-07-21: Due to upgrade issues on my building box, I am still working on fixing a functional 15.1-RELEASE box to build 26.7. I hope to have the images by this weekend. Any news I will post here. Nice week to all :)
 - 2026-07-30: I got to upgrade, even got (on a temporary basis) another arm64 building box to have a backup, but things are building since last Wednesday, and are yet on "plugins" phase. I searched about this slow building time and got the info that some changes on the 15.X family led to this. I have some hints on how to easy the pain, but will not try till this is done. So as soon as this is over, 26.7.1 will have its images.
+- 2026-10-06: 26.7.5 used src tagged 26.7.4. The stable/26.7 would not compile.
+- 2026-10-06: /etc/rc from core opnsense repo was edited to have resize for these images.
