@@ -6,6 +6,6 @@
 
 log_print $TAG_SRC $LOG $DATE Inicio
 
-make -C /usr/tools/ VERSION=$TAG_SRC DEVICE=$DEVICE kernel
+make -C /usr/tools/ SRCBRANCH=HEAD VERSION=$TAG_SRC DEVICE=$DEVICE kernel
 
 log_print $TAG_SRC $LOG $DATE Final

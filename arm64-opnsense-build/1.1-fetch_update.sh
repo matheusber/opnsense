@@ -21,12 +21,12 @@ make -C /usr/tools update
 CURRENT_DIR=`pwd`
 
 # make and install the old version of pkg used by opnsense
-cd /usr/ports/ports-mgmt/pkg/
-make -j4
-pkg unlock -y pkg
-#make deinstall
-make reinstall
-pkg lock -y pkg
+#cd /usr/ports/ports-mgmt/pkg/
+#make -j4
+#pkg unlock -y pkg
+##make deinstall
+#make reinstall
+#pkg lock -y pkg
 
 # Back to initial dir
 cd $CURRENT_DIR

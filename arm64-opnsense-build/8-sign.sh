@@ -4,8 +4,8 @@
 
 . env.sh
 
-log_print $TAG_SRC $LOG $DATE Inicio
+log_print $TAG_DEFAULT $LOG $DATE Inicio
 
 make -C /usr/tools/ VERSION=$TAG_CORE DEVICE=$DEVICE sign-base,kernel,packages
 
-log_print $TAG_SRC $LOG $DATE Final
+log_print $TAG_DEFAULT $LOG $DATE Final
