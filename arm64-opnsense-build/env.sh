@@ -2,7 +2,7 @@
 
 TAG=ARM64
 VERSION="26.7"
-MINOR=".6"
+MINOR=".7"
 
 TAG_DEFAULT="${VERSION}${MINOR}"
 TAG_SRC="${VERSION}${MINOR}"
@@ -29,6 +29,6 @@ log_print () {
  DATE_FUNC=$3
  STATE=$4
 
- echo -n "$SCRIPT $TAG_SRC_FUNC $DEVICE $IMAGE_SIZE $STATE: $(printf '\t')" >> $LOG_FILE
+ echo -n "$SCRIPT $TAG_SRC_FUNC $DEVICE $IMAGE_SIZE $STATE: $(printf ' \t')" >> $LOG_FILE
  date  $DATE_FUNC >> $LOG_FILE
 }
