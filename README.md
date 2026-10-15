@@ -21,3 +21,4 @@ In the case for R5S, both EDK2 and U-BOOT firmware are supported. As the latter 
 - 2026-07-30: I got to upgrade, even got (on a temporary basis) another arm64 building box to have a backup, but things are building since last Wednesday, and are yet on "plugins" phase. I searched about this slow building time and got the info that some changes on the 15.X family led to this. I have some hints on how to easy the pain, but will not try till this is done. So as soon as this is over, 26.7.1 will have its images.
 - 2026-10-06: 26.7.5 used src tagged 26.7.4. The stable/26.7 would not compile.
 - 2026-10-06: /etc/rc from core opnsense repo was edited to have resize for these images.
+- 2026-10-15: To build need a change on the sysutils/sysinfo description file, to reflect the new tar size and SHA256.
