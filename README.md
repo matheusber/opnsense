@@ -22,3 +22,4 @@ In the case for R5S, both EDK2 and U-BOOT firmware are supported. As the latter 
 - 2026-10-06: 26.7.5 used src tagged 26.7.4. The stable/26.7 would not compile.
 - 2026-10-06: /etc/rc from core opnsense repo was edited to have resize for these images.
 - 2026-10-15: To build need a change on the sysutils/sysinfo description file, to reflect the new tar size and SHA256.
+- 2026-10-21: Tested Orange Pi 5 Plus and the OP5P on NVMe was OK. Used EDK2 from https://github.com/edk2-porting/edk2-rk3588 on microSD. Tested also R5S using U-BOOT from FreeBSD Ports (new version), but the Realtek's didn't show up. 
